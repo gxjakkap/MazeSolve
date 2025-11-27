@@ -1,8 +1,8 @@
 package me.guntxjakka.MazeSolve.Utils;
 
 public class Coordinate {
-    private int x;
-    private int y;
+    protected int x;
+    protected int y;
     public Coordinate(int x, int y){
         this.x = x;
         this.y = y;
