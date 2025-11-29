@@ -43,7 +43,7 @@ public class Dijkstra implements AlgorithmStrategy{
         System.out.println("dijkstra Method running..");
         int row = dimension.getH();
         int col = dimension.getW();
-        List<List<Integer>> dist = new ArrayList(); //collect cost
+        List<List<Integer>> dist = new ArrayList<>(); //collect cost
         Node[][] parent = new Node[row][col]; //collect path
         /* initiate dist with max val */
         for(int i = 0; i < row;i++){
