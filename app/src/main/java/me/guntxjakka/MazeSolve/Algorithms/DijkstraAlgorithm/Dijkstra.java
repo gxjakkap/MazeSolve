@@ -44,7 +44,7 @@ public class Dijkstra implements AlgorithmStrategy{
         int row = dimension.getH();
         int col = dimension.getW();
         List<List<Integer>> dist = new ArrayList<>(); //collect cost
-        Node[][] parent = new Node[row][col]; //collect path
+        NodeDijkstra[][] parent = new NodeDijkstra[row][col]; //collect path
         /* initiate dist with max val */
         for(int i = 0; i < row;i++){
             List<Integer> d = new ArrayList<>();
@@ -57,11 +57,11 @@ public class Dijkstra implements AlgorithmStrategy{
         Coordinate endPoint = getEnd(maze);
         //set start point cost = 0
         dist.get(startPoint.getX()).set(startPoint.getY(), 0); 
-        PriorityQueue<Node> pq = new PriorityQueue<>();
-        pq.add(new Node(startPoint.getX(), startPoint.getY(), 0));
+        PriorityQueue<NodeDijkstra> pq = new PriorityQueue<>();
+        pq.add(new NodeDijkstra(startPoint.getX(), startPoint.getY(), 0));
         parent[startPoint.getX()][startPoint.getY()] = null;
         while(!pq.isEmpty()){
-            Node cur = pq.poll();
+            NodeDijkstra cur = pq.poll();
             if(cur.getX() == endPoint.getX() && cur.getY() == endPoint.getY()){
                 break;
             }
@@ -85,7 +85,7 @@ public class Dijkstra implements AlgorithmStrategy{
                 if(newCost < dist.get(nx).get(ny)){
                     dist.get(nx).set(ny, newCost);
                     parent[nx][ny] = cur;
-                    pq.add(new Node(nx, ny, newCost));
+                    pq.add(new NodeDijkstra(nx, ny, newCost));
                 }
             }
         }
@@ -95,7 +95,7 @@ public class Dijkstra implements AlgorithmStrategy{
         if(dist.get(endPoint.getX()).get(endPoint.getY()) == Integer.MAX_VALUE){
             System.out.println("cant find path");
         }
-        Node c = new Node(endPoint.getX(), endPoint.getY(), dist.get(endPoint.getX()).get(endPoint.getY()));
+        NodeDijkstra c = new NodeDijkstra(endPoint.getX(), endPoint.getY(), dist.get(endPoint.getX()).get(endPoint.getY()));
         while (c != null){
             path.add(new Coordinate(c.getX(), c.getY()));
             c = parent[c.getX()][c.getY()];

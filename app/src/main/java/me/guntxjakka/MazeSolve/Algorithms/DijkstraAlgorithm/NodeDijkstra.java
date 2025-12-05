@@ -1,11 +1,11 @@
 package me.guntxjakka.MazeSolve.Algorithms.DijkstraAlgorithm;
 
-public class Node implements Comparable<Node>{
+public class NodeDijkstra implements Comparable<NodeDijkstra>{
     private int x;
     private int y;
     private int cost;
 
-    public Node(int x, int y, int cost){
+    public NodeDijkstra(int x, int y, int cost){
         this.x = x;
         this.y = y;
         this.cost = cost;
@@ -24,7 +24,7 @@ public class Node implements Comparable<Node>{
     }
 
     @Override
-    public int compareTo(Node other) {
+    public int compareTo(NodeDijkstra other) {
         return this.cost - other.cost;
     }
 
