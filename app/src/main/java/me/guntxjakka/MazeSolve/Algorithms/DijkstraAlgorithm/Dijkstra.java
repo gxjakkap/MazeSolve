@@ -104,7 +104,7 @@ public class Dijkstra implements AlgorithmStrategy{
         bestPath = new ArrayList<>(path);
         cost = dist.get(endPoint.getX()).get(endPoint.getY());
         // test
-        System.out.println(dist);
+        // System.out.println(dist);
 
         return;
     }
