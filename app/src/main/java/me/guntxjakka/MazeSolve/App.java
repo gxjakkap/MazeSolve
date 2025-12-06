@@ -3,7 +3,9 @@ package me.guntxjakka.MazeSolve;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import me.guntxjakka.MazeSolve.Algorithms.AlgorithmContext;
 import me.guntxjakka.MazeSolve.Algorithms.AlgorithmResult;
@@ -34,11 +36,14 @@ public class App {
         AlgorithmContext alg = null;
         AlgorithmResult res = null;
 
+        Map<String, AlgorithmResult> resmap = new HashMap<>();
+
         System.out.println("Genetics Algorithm Results: ");
         alg = new AlgorithmContext(new GeneticsAlgorithm());
         res = alg.execute(m, md);
         MazeUtils.printMaze(m, md, res.getPaths());
         MazeMiscResults.print(res);
+        resmap.put("ga", res);
 
         System.out.println("-------------------------");
 
@@ -47,6 +52,7 @@ public class App {
         res = alg.execute(m, md);
         MazeUtils.printMaze(m, md, res.getPaths());
         MazeMiscResults.print(res);
+        resmap.put("astar", res);
 
         System.out.println("-------------------------");
 
@@ -55,6 +61,7 @@ public class App {
         res = alg.execute(m, md);
         MazeUtils.printMaze(m, md, res.getPaths());
         MazeMiscResults.print(res);
+        resmap.put("dijkstra", res);
 
         System.out.println("-------------------------");
 
@@ -63,5 +70,11 @@ public class App {
         res = alg.execute(m, md);
         MazeUtils.printMaze(m, md, res.getPaths());
         MazeMiscResults.print(res);
+        resmap.put("bfs", res);
+
+        System.out.println("-------------------------");
+        System.out.println();
+
+        MazeMiscResults.printTable(resmap);
     }
 }
