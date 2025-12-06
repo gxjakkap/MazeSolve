@@ -68,7 +68,7 @@ public class App {
         System.out.println("BFS Algorithm Results: ");
         alg = new AlgorithmContext(new BFS());
         res = alg.execute(m, md);
-        MazeUtils.printMaze(m, md, res.getPaths());
+        MazeUtils.printMaze(m, md, MazeUtils.flipCoordinates(res.getPaths()));
         MazeMiscResults.print(res);
         resmap.put("bfs", res);
 

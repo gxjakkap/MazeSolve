@@ -1,5 +1,6 @@
 package me.guntxjakka.MazeSolve.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.guntxjakka.MazeSolve.MazeFile.MazeDimension;
@@ -15,6 +16,16 @@ public class MazeUtils {
             return " ".repeat(padding) + s;
         }
         return s;
+    }
+
+    public static List<Coordinate> flipCoordinates(List<Coordinate> p){
+        List<Coordinate> l = new ArrayList<>();
+
+        for (Coordinate n : p){
+            l.add(new Coordinate(n.getY(), n.getX()));
+        }
+
+        return new ArrayList<>(l);
     }
 
     public static void printMaze(List<List<Integer>> maze, MazeDimension dim, List<Coordinate> path) {
@@ -67,6 +78,7 @@ public class MazeUtils {
             System.out.println();
         }
     }
+    
 
     public static void printBlankMaze(List<List<Integer>> maze, MazeDimension dim) {
         String[][] displayGrid = new String[dim.getH()][dim.getW()];
