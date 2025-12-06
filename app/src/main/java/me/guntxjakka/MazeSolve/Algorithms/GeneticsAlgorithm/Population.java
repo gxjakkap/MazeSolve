@@ -32,4 +32,14 @@ public class Population {
             this.pops.add(new Individual(sb.toString()));
         }
     }
+
+    public void fillPopsWithRandomImmigrant(int pSz, int gLen){
+        while (this.pops.size() < pSz){
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < gLen; j++) {
+                sb.append(GeneticsAlgorithm.MV[(int) Math.floor(Math.random() * GeneticsAlgorithm.MV.length)]);
+            }
+            this.pops.add(new Individual(sb.toString()));
+        }
+    }
 }

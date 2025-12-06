@@ -2,7 +2,7 @@ package me.guntxjakka.MazeSolve.Algorithms.AStarAlgorithm;
 
 import java.util.*;
 import me.guntxjakka.MazeSolve.Algorithms.AlgorithmStrategy;
-import me.guntxjakka.MazeSolve.MazeFile;
+import me.guntxjakka.MazeSolve.MazeFile.MazeDimension;
 import me.guntxjakka.MazeSolve.Utils.*;
 
 class Node{

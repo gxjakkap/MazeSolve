@@ -1,54 +1,79 @@
 package me.guntxjakka.MazeSolve.Algorithms.GeneticsAlgorithm;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import me.guntxjakka.MazeSolve.Algorithms.AlgorithmStrategy;
 import me.guntxjakka.MazeSolve.MazeFile.MazeDimension;
 import me.guntxjakka.MazeSolve.Utils.Coordinate;
+import me.guntxjakka.MazeSolve.Utils.MazeUtils;
 import me.guntxjakka.MazeSolve.Utils.MutableCoordinate;
 
 public class GeneticsAlgorithm implements AlgorithmStrategy {
-    private static final int POP_SIZE = 200;
-    private static final int MAX_GEN = 2000;
-    private static final int MAX_MOVES = 255;
-    private static final double MUT_RATE = 0.05;
+    // Constant
     public static final char[] MV = { 'u', 'd', 'l', 'r' };
+    public static final long TIME_LIMIT = 1 * 60 * 1000; // 1 min in ms
+
+    // Population
+    private static final int POP_SIZE = 2000;
+
+    // Generation
+    private static final int MAX_GEN = 50_000;
+    private static final int STAGNATION_LIMIT = 500;
+    private static final double MAX_MOVES_MULTIPLIER = 1.5;
+
+    // Evolution
+    private static final double MUT_RATE = 0.02;
+    private static final double MUT_DECAY_AFTER = 0.25;
+    private static final int TOURNAMENT_SIZE = 7;
+    private static final double ELITISM_RATE = 0.05;
+    private static final double RANDOM_IMMIGRANT_RATE = 0.02;
+
+    private static final boolean ENABLE_DEBUG_PRINT = false;
 
     private int cost = 0;
     private List<Coordinate> bestPath = null;
 
-    private Population evolvePops(Population cur) {
+    private Population evolvePops(Population cur, int gc, int maxMoves) {
         Population newPops = new Population();
 
-        int e = cur.getPops().size() / 10; // top 10%
-
-        for (int i = 0; i < e; i++) {
-            newPops.addIndividual(new Individual(cur.getPops().get(i).getMoves()));
-        }
+        int ec = (int) (cur.getPops().size() * ELITISM_RATE);
+        List<Individual> elites = cur.getPops().subList(0, ec);
+        elites.forEach(x -> {
+            newPops.addIndividual(new Individual(x.getMoves()));
+        });
 
         // Evolve
-        while (newPops.getPops().size() < cur.getPops().size()) {
+        while (newPops.getPops().size() < (cur.getPops().size() * (1.0 - RANDOM_IMMIGRANT_RATE))) {
             Individual p1 = tournamentSelection(cur);
             Individual p2 = tournamentSelection(cur);
             Individual child = crossover(p1, p2);
-            child.mutate(MUT_RATE); // 5% mutation rate
+            child.mutate(this.adaptiveMut(gc));
             newPops.addIndividual(child);
         }
+
+        newPops.fillPopsWithRandomImmigrant(cur.getPops().size(), maxMoves);
 
         return newPops;
     }
 
     private Individual tournamentSelection(Population pop) {
-        int tournamentSize = 5;
-        Population tournament = new Population();
-        for (int i = 0; i < tournamentSize; i++) {
+        Individual best = null;
+        for (int i = 0; i < TOURNAMENT_SIZE; i++) {
             int randomId = (int) (Math.random() * pop.getPops().size());
-            tournament.addIndividual(pop.getPops().get(randomId));
+            Individual cand = pop.getPops().get(randomId);
+            if (best == null || cand.getFitness() > best.getFitness()) {
+                best = cand;
+            }
         }
-        Collections.sort(tournament.getPops());
-        return tournament.getPops().get(0);
+
+        if (best == null) throw new NullPointerException();
+
+        return new Individual(best.getMoves());
+    }
+
+    private double adaptiveMut(int gc) {
+        return (gc > MAX_GEN * MUT_DECAY_AFTER) ? MUT_RATE * 20 : MUT_RATE;
     }
 
     private Individual crossover(Individual p1, Individual p2) {
@@ -59,18 +84,6 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
 
         String childMoves = m1.substring(0, split) + m2.substring(split);
         return new Individual(childMoves);
-    }
-
-    private Coordinate getPosition(List<List<Integer>> maze, int val) {
-        for (int i = 0; i < maze.size(); i++) {
-            for (int j = 0; j < maze.get(i).size(); j++) {
-                if (maze.get(i).get(j).equals(val)) {
-                    return new Coordinate(i, j);
-                }
-            }
-        }
-
-        return null;
     }
 
     private boolean isIllegalMove(List<List<Integer>> maze, MazeDimension dim, Coordinate next) {
@@ -89,14 +102,41 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
         return false;
     }
 
-    private double calcFitness(int cst, Coordinate cur, boolean fnd, Coordinate goal) {
-        if (fnd)
-            return 10000.0 + (1.0 / cst);
-        else {
-            double dis = Math.abs(cur.getX() - goal.getX()) + Math.abs(cur.getY() - goal.getY());
+    private boolean isFacingGoal(Coordinate pos, char lastMove, Coordinate goal) {
+        int dx = goal.getX() - pos.getX();
+        int dy = goal.getY() - pos.getY();
 
-            // add 1 to avoid divide by zero
-            return 1.0 / (dis + 1);
+        switch (lastMove) {
+            case 'u':
+                return dy < 0; // goal is above
+            case 'd':
+                return dy > 0; // goal is below
+            case 'l':
+                return dx < 0; // goal is left
+            case 'r':
+                return dx > 0; // goal is right
+        }
+        return false;
+    }
+
+    private double calcFitness(int cst, Coordinate cur, boolean fnd, Coordinate goal, MazeDimension dim,
+            char lastMove) {
+        double dis = Math.abs(cur.getX() - goal.getX()) + Math.abs(cur.getY() - goal.getY());
+
+        if (fnd) {
+            // goal found, optimize cost
+            return 10000000.0 - (cst * 100);
+        } else {
+            // reward for getting closer
+            double maxDist = dim.getW() + dim.getH() - 2;
+            double proximityScore = 1000.0 * (1.0 - (dis / maxDist));
+            // double progressBonus = Math.min(cst * 0.5, 500.0);
+
+            if (isFacingGoal(cur, lastMove, goal)) {
+                proximityScore += 150;
+            }
+
+            return proximityScore;
         }
     }
 
@@ -130,42 +170,60 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
                     // goal reached
                     fnd = true;
                     ind.setFinished(true);
-                    break;
+
                 }
                 cst += maze.get(next.getY()).get(next.getX());
             }
 
         }
 
-        ind.setFitness(calcFitness(cst, pos, fnd, getPosition(maze, -3)));
+        String m = ind.getMoves();
+        char lm = m.charAt(m.length() - 1);
+        ind.setFitness(calcFitness(cst, pos, fnd, MazeUtils.getPosition(maze, -3), dim, lm));
         ind.setCost(cst);
     }
 
-    private void recordBestPath(List<List<Integer>> maze, Individual ind, Coordinate start) {
+    private List<Coordinate> getPathFromIndividual(List<List<Integer>> maze, MazeDimension dim, Individual ind,
+            Coordinate start) {
         MutableCoordinate pos = new MutableCoordinate(start.getX(), start.getY());
         List<Coordinate> path = new ArrayList<>();
+        path.add(new Coordinate(start.getX(), start.getY()));
+
         for (char m : ind.getMoves().toCharArray()) {
+            Coordinate next;
             switch (m) {
                 case 'u':
-                    path.add(new Coordinate(pos.getX(), pos.getY() - 1));
+                    next = new Coordinate(pos.getX(), pos.getY() - 1);
                     break;
                 case 'd':
-                    path.add(new Coordinate(pos.getX(), pos.getY() + 1));
+                    next = new Coordinate(pos.getX(), pos.getY() + 1);
                     break;
                 case 'l':
-                    path.add(new Coordinate(pos.getX() - 1, pos.getY()));
+                    next = new Coordinate(pos.getX() - 1, pos.getY());
                     break;
-                default: // only case left is r
-                    path.add(new Coordinate(pos.getX() + 1, pos.getY()));
+                default: // r
+                    next = new Coordinate(pos.getX() + 1, pos.getY());
                     break;
             }
+
+            if (!isIllegalMove(maze, dim, next)) {
+                pos.setPos(next);
+                path.add(next);
+                if (maze.get(pos.getY()).get(pos.getX()).equals(-3)) {
+                    break;
+                }
+            }
         }
-        this.bestPath = path;
+        return path;
     }
 
     public void findPath(List<List<Integer>> maze, MazeDimension dimension) {
-        Coordinate start = getPosition(maze, -2);
-        Coordinate end = getPosition(maze, -3);
+        Coordinate start = MazeUtils.getPosition(maze, -2);
+        Coordinate end = MazeUtils.getPosition(maze, -3);
+
+        int maxMoves = (int) (MAX_MOVES_MULTIPLIER * dimension.getH() * dimension.getW());
+
+        long startTime = System.currentTimeMillis();
 
         if (start == null || end == null) {
             System.out.println("Error: Start or End point not found!");
@@ -174,10 +232,14 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
 
         // init
         Population pop = new Population();
-        pop.populateFirstGen(POP_SIZE, MAX_MOVES);
+        pop.populateFirstGen(POP_SIZE, maxMoves);
 
         Individual champOfTheChamp = null;
+        GAStandardDeviation csd = new GAStandardDeviation();
         int gc = 0;
+        double prevBestFitness = Double.NEGATIVE_INFINITY;
+        int stagnationCounter = 0; // counts generations without improvement
+        int champGen = 0;
 
         while (gc < MAX_GEN) {
             for (Individual ind : pop.getPops()) {
@@ -187,25 +249,62 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
             pop.sortDescending();
             Individual champCandidate = pop.getPops().get(0);
 
+            // Track stagnation: if best fitness hasn't improved, increment counter
+            if (champCandidate.getFitness() > prevBestFitness) {
+                prevBestFitness = champCandidate.getFitness();
+                stagnationCounter = 0;
+            } else {
+                stagnationCounter++;
+            }
+
+            csd.addFiness(champCandidate.getFitness());
+
             if (champOfTheChamp == null || champCandidate.compareTo(champOfTheChamp) > 0) {
                 champOfTheChamp = new Individual(null);
                 champOfTheChamp.copyFrom(champCandidate);
-
-                System.out.println(
-                        String.format("[Gen #%d] new ChampOfTheChamp! fit: %.3f", gc, champOfTheChamp.getFitness()));
+                champGen = gc;
+                this.cost = champOfTheChamp.getCost();
+                this.bestPath = getPathFromIndividual(maze, dimension, champOfTheChamp, start);
+                if (ENABLE_DEBUG_PRINT){
+                    System.out.println(String.format("[Gen #%d] new ChampOfTheChamp! fit: %.3f cost: %d", champGen,champOfTheChamp.getFitness(), champOfTheChamp.getCost()));
+                    MazeUtils.printMaze(maze, dimension, getPathFromIndividual(maze, dimension, champOfTheChamp, start));
+                }
             }
 
             if (champOfTheChamp.isFinished()) {
-                this.cost = champOfTheChamp.getCost();
-                recordBestPath(maze, champCandidate, start);
-                System.out.println(String.format("[Gen #%d] Solution found!", gc));
-                // TODO: print solution
+                if (ENABLE_DEBUG_PRINT) {
+                    if (champGen == gc)
+                        System.out.println(String.format("[Gen #%d] Solution found! cost: %d", gc, this.cost));
+                }
+
+                if (csd.isConverged()) {
+                    System.out.println(String.format("[Gen #%d] Terminated! Fitness converged (sd = %f)", gc, csd.getSD()));
+                    break;
+                }
+                // Additional early termination based on stagnation
+                if (stagnationCounter >= STAGNATION_LIMIT) {
+                    System.out.println(String.format("[Gen #%d] Terminated! No fitness improvement for %d generations.",
+                            gc, STAGNATION_LIMIT));
+                    break;
+                }
+            }
+            long elapsed = System.currentTimeMillis() - startTime;
+            if (elapsed >= TIME_LIMIT) {
+                System.out.println(
+                        String.format("[Gen #%d] Terminated! Time limit of %d reached. (%d elapsed)", gc, TIME_LIMIT,
+                                elapsed));
                 break;
             }
 
-            pop = evolvePops(pop);
+            pop = evolvePops(pop, gc, maxMoves);
             gc++;
         }
+
+        System.out
+                .println(String.format("Conclusion: Ran %d gens, Best at #%d (%s), cost: %d, time: %dms", gc, champGen,
+                        champOfTheChamp == null ? "unfinished"
+                                : champOfTheChamp.isFinished() ? "finished" : "unfinished",
+                        this.cost, System.currentTimeMillis() - startTime));
     }
 
     public int getCost() {
@@ -213,6 +312,6 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
     }
 
     public List<Coordinate> getPath() {
-        return new ArrayList<>(this.bestPath);
+        return this.bestPath;
     }
 }

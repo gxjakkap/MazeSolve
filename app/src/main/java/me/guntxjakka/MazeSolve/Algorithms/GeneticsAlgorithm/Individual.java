@@ -12,7 +12,7 @@ public class Individual implements Comparable<Individual> {
 
     @Override
     public int compareTo(Individual o) {
-        return Double.compare(this.cost, o.getCost());
+        return Double.compare(this.fitness, o.getFitness());
     }
 
     public String getMoves() {
