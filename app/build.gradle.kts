@@ -41,3 +41,10 @@ tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
+
+tasks.register<JavaExec>("printmaze") {
+    group = "application"
+    description = "Runs the PrintMaze class"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("me.guntxjakka.MazeSolve.PrintMaze")
+}

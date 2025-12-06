@@ -68,6 +68,34 @@ public class MazeUtils {
         }
     }
 
+    public static void printBlankMaze(List<List<Integer>> maze, MazeDimension dim) {
+        String[][] displayGrid = new String[dim.getH()][dim.getW()];
+
+        for (int y = 0; y < dim.getH(); y++) {
+            for (int x = 0; x < dim.getW(); x++) {
+                int val = maze.get(y).get(x);
+                if (val == -1) {
+                    displayGrid[y][x] = "##";
+                } else if (val == -2) {
+                    displayGrid[y][x] = "\u001B[41mST\u001B[0m";
+                } else if (val == -3) {
+                    displayGrid[y][x] = "\u001B[41mED\u001B[0m";
+                } else {
+                    // print the cost
+                    displayGrid[y][x] = String.valueOf(val);
+                }
+            }
+        }
+        for (int y = 0; y < dim.getH(); y++) {
+            for (int x = 0; x < dim.getW(); x++) {
+                // Use pad() to ensure alignment even with ANSI colors
+                System.out.print(pad(displayGrid[y][x]));
+            }
+            System.out.println();
+        }
+    }
+
+
     public static Coordinate getPosition(List<List<Integer>> maze, int val) {
         for (int i = 0; i < maze.size(); i++) {
             for (int j = 0; j < maze.get(i).size(); j++) {

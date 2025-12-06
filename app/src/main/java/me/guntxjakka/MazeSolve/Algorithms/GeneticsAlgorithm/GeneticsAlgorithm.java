@@ -172,9 +172,13 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
                     // goal reached
                     fnd = true;
                     ind.setFinished(true);
-
+                    break;
                 }
-                cst += maze.get(next.getY()).get(next.getX());
+                int nxcst = maze.get(next.getY()).get(next.getX());
+                if (nxcst > 0) {
+                    cst += nxcst;
+                }
+
             }
 
         }
