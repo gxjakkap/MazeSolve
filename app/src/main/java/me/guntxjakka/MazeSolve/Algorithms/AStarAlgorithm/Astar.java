@@ -1,6 +1,8 @@
 package me.guntxjakka.MazeSolve.Algorithms.AStarAlgorithm;
 
 import java.util.*;
+
+import me.guntxjakka.MazeSolve.Algorithms.AlgorithmConstant;
 import me.guntxjakka.MazeSolve.Algorithms.AlgorithmStrategy;
 import me.guntxjakka.MazeSolve.MazeFile.MazeDimension;
 import me.guntxjakka.MazeSolve.Utils.*;
@@ -35,7 +37,11 @@ public class AStar implements AlgorithmStrategy{
 
     private int[][] directions = {{-1,0}, {1,0}, {0, -1}, {0, 1}};
 
+    private long elapsed = 0;
+
     public void findPath(List<List<Integer>> maze, MazeDimension dimension){
+        long startTime = System.currentTimeMillis();
+
         Coordinate start = null;
         Coordinate goal = null;
         int H = dimension.getH();
@@ -69,9 +75,18 @@ public class AStar implements AlgorithmStrategy{
         while(!nodeList.isEmpty()){
             curNode = nodeList.poll(); //ดึง f น้อยสุดดด
             Coordinate curCoor = curNode.getCoordinate();
+            this.elapsed = System.currentTimeMillis() - startTime;
+
             if(curCoor.getX() == goal.getX() && curCoor.getY() == goal.getY()){
                 reconstructPath(curNode);
                 this.cost = curNode.g;
+                this.elapsed = System.currentTimeMillis() - startTime;
+                return;
+            }
+
+            if (this.elapsed >= AlgorithmConstant.TIME_LIMIT_MS){
+                System.out.println(String.format("Terminated! Time limit of %d reached. (%d elapsed)", AlgorithmConstant.TIME_LIMIT_MS, this.elapsed));
+                this.elapsed = System.currentTimeMillis() - startTime;
                 return;
             }
 
@@ -113,6 +128,7 @@ public class AStar implements AlgorithmStrategy{
         }
         this.cost = -1;
         this.path = Collections.emptyList();
+        this.elapsed = System.currentTimeMillis() - startTime;
     }
 
     private int calculateManDis(Coordinate cur, Coordinate goal){
@@ -141,6 +157,10 @@ public class AStar implements AlgorithmStrategy{
 
     public List<Coordinate> getPath(){
         return path;
+    }
+
+    public long getElapsedTime(){
+        return this.elapsed;
     }
     
 }

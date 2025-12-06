@@ -17,7 +17,7 @@ public class AlgorithmContext {
 
     public AlgorithmResult execute(List<List<Integer>> maze, MazeDimension dimension){
         this.strategy.findPath(maze, dimension);
-        return new AlgorithmResult(this.strategy.getCost(), this.strategy.getPath());
+        return new AlgorithmResult(this.strategy.getCost(), this.strategy.getPath(), this.strategy.getElapsedTime());
     }
     
 }

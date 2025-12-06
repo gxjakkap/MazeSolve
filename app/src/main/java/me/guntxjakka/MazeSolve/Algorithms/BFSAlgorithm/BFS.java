@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import me.guntxjakka.MazeSolve.Algorithms.AlgorithmConstant;
 import me.guntxjakka.MazeSolve.Algorithms.AlgorithmStrategy;
 import me.guntxjakka.MazeSolve.MazeFile.MazeDimension;
 import me.guntxjakka.MazeSolve.Utils.Coordinate;
@@ -16,6 +17,8 @@ public class BFS implements AlgorithmStrategy{
     private List<Coordinate> bestPath = null;
     private static final int[] dx = {-1, 1, 0, 0};
     private static final int[] dy = {0, 0, -1, 1};
+
+    private long elapsed = 0;
 
     // get position of specific value
     private Coordinate getStart(List<List<Integer>> maze){
@@ -43,6 +46,7 @@ public class BFS implements AlgorithmStrategy{
     // bfs algorithm
     public void findPath(List<List<Integer>> maze, MazeDimension dimension){
         System.out.println("BFS Method running..");
+        long startTime = System.currentTimeMillis();
         int row = dimension.getH();
         int col = dimension.getW();
         boolean[][] visited = new boolean[row][col];
@@ -54,6 +58,11 @@ public class BFS implements AlgorithmStrategy{
         NodeBFS endNode = null;
 
         while(!q.isEmpty()){
+            this.elapsed = System.currentTimeMillis() - startTime;
+            if (this.elapsed >= AlgorithmConstant.TIME_LIMIT_MS){
+                System.out.println(String.format("Terminated! Time limit of %d reached. (%d elapsed)", AlgorithmConstant.TIME_LIMIT_MS, this.elapsed));
+                return;
+            }
             NodeBFS cur = q.poll();
             //reach endPoint
             if(cur.getX() == endPoint.getX() && cur.getY() == endPoint.getY()){
@@ -78,6 +87,7 @@ public class BFS implements AlgorithmStrategy{
         // no path found
         if(endNode == null){
             System.out.println("can't find path");
+            this.elapsed = System.currentTimeMillis() - startTime;
             return;
         }
         // find best path
@@ -89,6 +99,7 @@ public class BFS implements AlgorithmStrategy{
         }
         Collections.reverse(path);
         bestPath = new ArrayList<>(path);
+        this.elapsed = System.currentTimeMillis() - startTime;
         return;
 
     }
@@ -101,5 +112,9 @@ public class BFS implements AlgorithmStrategy{
     //execute path answer
     public List<Coordinate> getPath(){
         return new ArrayList<>(this.bestPath);
+    }
+
+    public long getElapsedTime(){
+        return this.elapsed;
     }
 }

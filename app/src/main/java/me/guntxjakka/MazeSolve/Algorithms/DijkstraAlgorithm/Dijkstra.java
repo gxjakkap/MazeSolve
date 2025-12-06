@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import me.guntxjakka.MazeSolve.Algorithms.AlgorithmConstant;
 import me.guntxjakka.MazeSolve.Algorithms.AlgorithmStrategy;
 import me.guntxjakka.MazeSolve.MazeFile.MazeDimension;
 import me.guntxjakka.MazeSolve.Utils.Coordinate;
@@ -14,6 +15,8 @@ public class Dijkstra implements AlgorithmStrategy{
     private List<Coordinate> bestPath = null;
     private static final int[] dx = {-1, 1, 0, 0};
     private static final int[] dy = {0, 0, -1, 1};
+
+    private long elapsed = 0;
 
     // get position of specific value
     private Coordinate getStart(List<List<Integer>> maze){
@@ -41,6 +44,7 @@ public class Dijkstra implements AlgorithmStrategy{
     // dijkstra algorithm
     public void findPath(List<List<Integer>> maze, MazeDimension dimension){
         System.out.println("dijkstra Method running..");
+        long startTime = System.currentTimeMillis();
         int row = dimension.getH();
         int col = dimension.getW();
         List<List<Integer>> dist = new ArrayList<>(); //collect cost
@@ -55,12 +59,26 @@ public class Dijkstra implements AlgorithmStrategy{
         }
         Coordinate startPoint = getStart(maze);
         Coordinate endPoint = getEnd(maze);
+
+        if (startPoint == null || endPoint == null) {
+            System.out.println("Start or End not found");
+            this.elapsed = System.currentTimeMillis() - startTime;
+            return;
+        }
+
+
         //set start point cost = 0
         dist.get(startPoint.getX()).set(startPoint.getY(), 0); 
         PriorityQueue<NodeDijkstra> pq = new PriorityQueue<>();
         pq.add(new NodeDijkstra(startPoint.getX(), startPoint.getY(), 0));
         parent[startPoint.getX()][startPoint.getY()] = null;
         while(!pq.isEmpty()){
+            this.elapsed = System.currentTimeMillis() - startTime;
+            if (this.elapsed >= AlgorithmConstant.TIME_LIMIT_MS){
+                System.out.println(String.format("Terminated! Time limit of %d reached. (%d elapsed)", AlgorithmConstant.TIME_LIMIT_MS, this.elapsed));
+                this.elapsed = System.currentTimeMillis() - startTime;
+                return;
+            }
             NodeDijkstra cur = pq.poll();
             if(cur.getX() == endPoint.getX() && cur.getY() == endPoint.getY()){
                 break;
@@ -90,6 +108,8 @@ public class Dijkstra implements AlgorithmStrategy{
             }
         }
 
+        this.elapsed = System.currentTimeMillis() - startTime;
+
         // find best path
         List<Coordinate> path = new ArrayList<>();
         if(dist.get(endPoint.getX()).get(endPoint.getY()) == Integer.MAX_VALUE){
@@ -97,6 +117,12 @@ public class Dijkstra implements AlgorithmStrategy{
         }
         NodeDijkstra c = new NodeDijkstra(endPoint.getX(), endPoint.getY(), dist.get(endPoint.getX()).get(endPoint.getY()));
         while (c != null){
+            this.elapsed = System.currentTimeMillis() - startTime;
+            if (this.elapsed >= AlgorithmConstant.TIME_LIMIT_MS){
+                System.out.println(String.format("Terminated! Time limit of %d reached. (%d elapsed)", AlgorithmConstant.TIME_LIMIT_MS, this.elapsed));
+                this.elapsed = System.currentTimeMillis() - startTime;
+                return;
+            }
             path.add(new Coordinate(c.getX(), c.getY()));
             c = parent[c.getX()][c.getY()];
         }
@@ -106,6 +132,7 @@ public class Dijkstra implements AlgorithmStrategy{
         // test
         // System.out.println(dist);
 
+        this.elapsed = System.currentTimeMillis() - startTime;
         return;
     }
 
@@ -119,4 +146,7 @@ public class Dijkstra implements AlgorithmStrategy{
         return new ArrayList<>(this.bestPath);
     }
 
+    public long getElapsedTime(){
+        return this.elapsed;
+    }
 }

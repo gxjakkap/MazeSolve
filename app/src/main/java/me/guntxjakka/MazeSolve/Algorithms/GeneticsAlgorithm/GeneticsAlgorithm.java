@@ -3,6 +3,7 @@ package me.guntxjakka.MazeSolve.Algorithms.GeneticsAlgorithm;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.guntxjakka.MazeSolve.Algorithms.AlgorithmConstant;
 import me.guntxjakka.MazeSolve.Algorithms.AlgorithmStrategy;
 import me.guntxjakka.MazeSolve.MazeFile.MazeDimension;
 import me.guntxjakka.MazeSolve.Utils.Coordinate;
@@ -12,7 +13,6 @@ import me.guntxjakka.MazeSolve.Utils.MutableCoordinate;
 public class GeneticsAlgorithm implements AlgorithmStrategy {
     // Constant
     public static final char[] MV = { 'u', 'd', 'l', 'r' };
-    public static final long TIME_LIMIT = 1 * 60 * 1000; // 1 min in ms
 
     // Population
     private static final int POP_SIZE = 2000;
@@ -29,10 +29,11 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
     private static final double ELITISM_RATE = 0.05;
     private static final double RANDOM_IMMIGRANT_RATE = 0.02;
 
-    private static final boolean ENABLE_DEBUG_PRINT = false;
+    private static final boolean ENABLE_DEBUG_PRINT = true;
 
     private int cost = 0;
     private List<Coordinate> bestPath = null;
+    private long elapsed = 0;
 
     private Population evolvePops(Population cur, int gc, int maxMoves) {
         Population newPops = new Population();
@@ -67,7 +68,8 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
             }
         }
 
-        if (best == null) throw new NullPointerException();
+        if (best == null)
+            throw new NullPointerException();
 
         return new Individual(best.getMoves());
     }
@@ -265,9 +267,11 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
                 champGen = gc;
                 this.cost = champOfTheChamp.getCost();
                 this.bestPath = getPathFromIndividual(maze, dimension, champOfTheChamp, start);
-                if (ENABLE_DEBUG_PRINT){
-                    System.out.println(String.format("[Gen #%d] new ChampOfTheChamp! fit: %.3f cost: %d", champGen,champOfTheChamp.getFitness(), champOfTheChamp.getCost()));
-                    MazeUtils.printMaze(maze, dimension, getPathFromIndividual(maze, dimension, champOfTheChamp, start));
+                if (ENABLE_DEBUG_PRINT) {
+                    System.out.println(String.format("[Gen #%d] new ChampOfTheChamp! fit: %.3f cost: %d", champGen,
+                            champOfTheChamp.getFitness(), champOfTheChamp.getCost()));
+                    MazeUtils.printMaze(maze, dimension,
+                            getPathFromIndividual(maze, dimension, champOfTheChamp, start));
                 }
             }
 
@@ -278,7 +282,8 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
                 }
 
                 if (csd.isConverged()) {
-                    System.out.println(String.format("[Gen #%d] Terminated! Fitness converged (sd = %f)", gc, csd.getSD()));
+                    System.out.println(
+                            String.format("[Gen #%d] Terminated! Fitness converged (sd = %f)", gc, csd.getSD()));
                     break;
                 }
                 // Additional early termination based on stagnation
@@ -288,11 +293,10 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
                     break;
                 }
             }
-            long elapsed = System.currentTimeMillis() - startTime;
-            if (elapsed >= TIME_LIMIT) {
-                System.out.println(
-                        String.format("[Gen #%d] Terminated! Time limit of %d reached. (%d elapsed)", gc, TIME_LIMIT,
-                                elapsed));
+            this.elapsed = System.currentTimeMillis() - startTime;
+            if (this.elapsed >= AlgorithmConstant.TIME_LIMIT_MS) {
+                System.out.println(String.format("[Gen #%d] Terminated! Time limit of %d reached. (%d elapsed)", gc,
+                        AlgorithmConstant.TIME_LIMIT_MS, this.elapsed));
                 break;
             }
 
@@ -300,15 +304,17 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
             gc++;
         }
 
-        System.out
-                .println(String.format("Conclusion: Ran %d gens, Best at #%d (%s), cost: %d, time: %dms", gc, champGen,
-                        champOfTheChamp == null ? "unfinished"
-                                : champOfTheChamp.isFinished() ? "finished" : "unfinished",
-                        this.cost, System.currentTimeMillis() - startTime));
+        System.out.println(String.format("GA Conclusion: Ran %d gens, Best at #%d (%s)", gc, champGen,
+                champOfTheChamp == null ? "unfinished" : champOfTheChamp.isFinished() ? "finished" : "unfinished"));
+        this.elapsed = System.currentTimeMillis() - startTime;
     }
 
     public int getCost() {
         return this.cost;
+    }
+
+    public long getElapsedTime() {
+        return this.elapsed;
     }
 
     public List<Coordinate> getPath() {
