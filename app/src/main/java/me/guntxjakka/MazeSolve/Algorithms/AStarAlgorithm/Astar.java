@@ -7,30 +7,6 @@ import me.guntxjakka.MazeSolve.Algorithms.AlgorithmStrategy;
 import me.guntxjakka.MazeSolve.MazeFile.MazeDimension;
 import me.guntxjakka.MazeSolve.Utils.*;
 
-class Node{
-    Coordinate coordinate;
-    Node parent;
-    int f;
-    int g;
-    int h;
-
-    public Node(Coordinate coordinate, Node parent, int g, int h){
-        this.coordinate = coordinate;
-        this.parent = parent;
-        this.g = g;
-        this.h = h;
-        this.f = g + h;
-    }
-
-    public Coordinate getCoordinate(){
-        return coordinate;
-    }
-
-    public int compareTo(Node other){
-        return Integer.compare(this.f, other.f);
-    }
-}
-
 public class AStar implements AlgorithmStrategy{
     private int cost = -1;
     private List<Coordinate> path = new ArrayList<>();
@@ -63,14 +39,14 @@ public class AStar implements AlgorithmStrategy{
             return;
         }
 
-        PriorityQueue<Node> nodeList = new PriorityQueue<>();
-        HashMap<String, Node> allNodes = new HashMap<>();
+        PriorityQueue<AStarNode> nodeList = new PriorityQueue<>();
+        HashMap<String, AStarNode> allNodes = new HashMap<>();
 
         int hStart = calculateManDis(start, goal);    
-        Node startNode = new Node(start, null, 0, hStart);
+        AStarNode startNode = new AStarNode(start, null, 0, hStart);
         nodeList.add(startNode);
         allNodes.put(getKey(start), startNode);
-        Node curNode;
+        AStarNode curNode;
         
         while(!nodeList.isEmpty()){
             curNode = nodeList.poll(); //ดึง f น้อยสุดดด
@@ -105,12 +81,12 @@ public class AStar implements AlgorithmStrategy{
                     }
 
                     int newG = curNode.g + stepCost;
-                    Node neighNode = allNodes.get(neighKey);
+                    AStarNode neighNode = allNodes.get(neighKey);
                     if(neighNode == null || newG < neighNode.g){ //New node or better g
                         int hNeighbor = calculateManDis(neighCoor, goal);
 
                         if(neighNode == null){
-                            neighNode = new Node(neighCoor, curNode, newG, hNeighbor);
+                            neighNode = new AStarNode(neighCoor, curNode, newG, hNeighbor);
                             allNodes.put(neighKey, neighNode);
                             nodeList.add(neighNode);
                         }
@@ -136,9 +112,9 @@ public class AStar implements AlgorithmStrategy{
     }
 
 
-    private void reconstructPath(Node endNode){
+    private void reconstructPath(AStarNode endNode){
         List<Coordinate> tempPath = new ArrayList<>();
-        Node current = endNode;
+        AStarNode current = endNode;
         while(current != null){
             tempPath.add(current.getCoordinate());
             current = current.parent;
