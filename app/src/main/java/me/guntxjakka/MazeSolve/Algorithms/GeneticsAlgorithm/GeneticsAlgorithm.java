@@ -29,7 +29,7 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
     private static final double ELITISM_RATE = 0.05;
     private static final double RANDOM_IMMIGRANT_RATE = 0.02;
 
-    private static final boolean ENABLE_DEBUG_PRINT = true;
+    private static final boolean ENABLE_DEBUG_PRINT = false;
 
     private int cost = 0;
     private List<Coordinate> bestPath = null;
