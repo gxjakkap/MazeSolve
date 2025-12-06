@@ -48,3 +48,10 @@ tasks.register<JavaExec>("printmaze") {
     classpath = sourceSets["main"].runtimeClasspath
     mainClass.set("me.guntxjakka.MazeSolve.PrintMaze")
 }
+
+tasks.register<JavaExec>("runall") {
+    group = "application"
+    description = "Runs Every Maze"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("me.guntxjakka.MazeSolve.RunEveryMaze")
+}

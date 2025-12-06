@@ -59,13 +59,13 @@ public class MazeUtils {
 
             String symbol = "*";
             if (next.getX() > curr.getX())
-                symbol = "\u001B[42m→\u001B[0m";
+                symbol = "\u001B[42m>\u001B[0m";
             else if (next.getX() < curr.getX())
-                symbol = "\u001B[42m←\u001B[0m";
+                symbol = "\u001B[42m<\u001B[0m";
             else if (next.getY() > curr.getY())
-                symbol = "\u001B[42m↓\u001B[0m";
+                symbol = "\u001B[42mv\u001B[0m";
             else if (next.getY() < curr.getY())
-                symbol = "\u001B[42m↑\u001B[0m";
+                symbol = "\u001B[42m^\u001B[0m";
 
             displayGrid[curr.getY()][curr.getX()] = symbol;
         }
