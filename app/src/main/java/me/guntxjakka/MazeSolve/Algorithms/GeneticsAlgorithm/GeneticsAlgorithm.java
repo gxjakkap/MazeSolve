@@ -28,6 +28,7 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
     private static final int TOURNAMENT_SIZE = 7;
     private static final double ELITISM_RATE = 0.05;
     private static final double RANDOM_IMMIGRANT_RATE = 0.02;
+    private static final double CROSSOVER_RATE = 0.9;
 
     private static final boolean ENABLE_DEBUG_PRINT = false;
 
@@ -47,8 +48,15 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
         // Evolve
         while (newPops.getPops().size() < (cur.getPops().size() * (1.0 - RANDOM_IMMIGRANT_RATE))) {
             Individual p1 = tournamentSelection(cur);
-            Individual p2 = tournamentSelection(cur);
-            Individual child = crossover(p1, p2);
+            Individual child;
+
+            if (Math.random() < CROSSOVER_RATE) {
+                Individual p2 = tournamentSelection(cur);
+                child = crossover(p1, p2);
+            } else {
+                child = new Individual(p1.getMoves());
+            }
+
             child.mutate(this.adaptiveMut(gc));
             newPops.addIndividual(child);
         }
