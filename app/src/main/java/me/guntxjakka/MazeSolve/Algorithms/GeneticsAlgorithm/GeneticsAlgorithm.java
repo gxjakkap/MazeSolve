@@ -100,7 +100,7 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
     private boolean isLegalMove(List<List<Integer>> maze, MazeDimension dim, Coordinate next) {
         if (next.getX() < 0 || next.getY() < 0)
             return false; // list index can't be negative
-        if (next.getX() >= dim.getW() || next.getY() >= dim.getH())
+        if (next.getX() >= dim.w() || next.getY() >= dim.h())
             return false; // check out of bound
 
         Integer nextPosVal = maze.get(next.getY()).get(next.getX());
@@ -134,7 +134,7 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
             return 10000000.0 - (cst * 100);
         } else {
             // reward for getting closer
-            double maxDist = dim.getW() + dim.getH() - 2;
+            double maxDist = dim.w() + dim.h() - 2;
             double proximityScore = 1000.0 * (1.0 - (dis / maxDist));
             // double progressBonus = Math.min(cst * 0.5, 500.0);
 
@@ -214,7 +214,7 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
         Coordinate start = MazeUtils.getPosition(maze, -2);
         Coordinate end = MazeUtils.getPosition(maze, -3);
 
-        int maxMoves = (int) (MAX_MOVES_MULTIPLIER * dimension.getH() * dimension.getW());
+        int maxMoves = (int) (MAX_MOVES_MULTIPLIER * dimension.h() * dimension.w());
 
         long startTime = System.currentTimeMillis();
 

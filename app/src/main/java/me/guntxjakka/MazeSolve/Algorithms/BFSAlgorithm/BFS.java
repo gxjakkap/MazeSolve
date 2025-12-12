@@ -47,8 +47,8 @@ public class BFS implements AlgorithmStrategy{
     public void findPath(List<List<Integer>> maze, MazeDimension dimension){
         System.out.println("BFS Method running..");
         long startTime = System.currentTimeMillis();
-        int row = dimension.getH();
-        int col = dimension.getW();
+        int row = dimension.h();
+        int col = dimension.w();
         boolean[][] visited = new boolean[row][col];
         Queue<NodeBFS> q = new LinkedList<>();
         Coordinate startPoint = getStart(maze);
@@ -60,7 +60,7 @@ public class BFS implements AlgorithmStrategy{
         while(!q.isEmpty()){
             this.elapsed = System.currentTimeMillis() - startTime;
             if (this.elapsed >= AlgorithmConstant.TIME_LIMIT_MS){
-                System.out.println(String.format("Terminated! Time limit of %d reached. (%d elapsed)", AlgorithmConstant.TIME_LIMIT_MS, this.elapsed));
+                System.out.printf("Terminated! Time limit of %d reached. (%d elapsed)%n", AlgorithmConstant.TIME_LIMIT_MS, this.elapsed);
                 this.elapsed = System.currentTimeMillis() - startTime;
                 return;
             }
@@ -96,7 +96,7 @@ public class BFS implements AlgorithmStrategy{
         while(cur != null){
             this.elapsed = System.currentTimeMillis() - startTime;
             if (this.elapsed >= AlgorithmConstant.TIME_LIMIT_MS){
-                System.out.println(String.format("Terminated! Time limit of %d reached. (%d elapsed)", AlgorithmConstant.TIME_LIMIT_MS, this.elapsed));
+                System.out.printf("Terminated! Time limit of %d reached. (%d elapsed)%n", AlgorithmConstant.TIME_LIMIT_MS, this.elapsed);
                 this.elapsed = System.currentTimeMillis() - startTime;
                 return;
             }

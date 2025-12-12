@@ -25,13 +25,13 @@ public class App {
         if (mfn.isBlank()){
             mfn = "m15_15";
         }
-        System.out.println(String.format("Using maze file %s.txt", mfn));
+        System.out.printf("Using maze file %s.txt%n", mfn);
         mf.setTargetPath(base.normalize().resolve(String.format("%s.txt", mfn)).toString());
         mf.readFile();
         MazeDimension md = mf.getDimension();
         ArrayList<List<Integer>> m = mf.getMaze();
 
-        System.out.println(String.format("w: %d h: %d", md.getW(), md.getH()));
+        System.out.printf("w: %d h: %d%n", md.w(), md.h());
 
         AlgorithmContext alg = null;
         AlgorithmResult res = null;

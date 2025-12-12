@@ -45,8 +45,8 @@ public class Dijkstra implements AlgorithmStrategy{
     public void findPath(List<List<Integer>> maze, MazeDimension dimension){
         System.out.println("dijkstra Method running..");
         long startTime = System.currentTimeMillis();
-        int row = dimension.getH();
-        int col = dimension.getW();
+        int row = dimension.h();
+        int col = dimension.w();
         List<List<Integer>> dist = new ArrayList<>(); //collect cost
         NodeDijkstra[][] parent = new NodeDijkstra[row][col]; //collect path
         /* initiate dist with max val */
@@ -75,7 +75,7 @@ public class Dijkstra implements AlgorithmStrategy{
         while(!pq.isEmpty()){
             this.elapsed = System.currentTimeMillis() - startTime;
             if (this.elapsed >= AlgorithmConstant.TIME_LIMIT_MS){
-                System.out.println(String.format("Terminated! Time limit of %d reached. (%d elapsed)", AlgorithmConstant.TIME_LIMIT_MS, this.elapsed));
+                System.out.printf("Terminated! Time limit of %d reached. (%d elapsed)%n", AlgorithmConstant.TIME_LIMIT_MS, this.elapsed);
                 this.elapsed = System.currentTimeMillis() - startTime;
                 return;
             }

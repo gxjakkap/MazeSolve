@@ -31,10 +31,10 @@ public class MazeUtils {
     public static void printMaze(List<List<Integer>> maze, MazeDimension dim, List<Coordinate> path) {
         if (path == null)
             return;
-        String[][] displayGrid = new String[dim.getH()][dim.getW()];
+        String[][] displayGrid = new String[dim.h()][dim.w()];
 
-        for (int y = 0; y < dim.getH(); y++) {
-            for (int x = 0; x < dim.getW(); x++) {
+        for (int y = 0; y < dim.h(); y++) {
+            for (int x = 0; x < dim.w(); x++) {
                 int val = maze.get(y).get(x);
                 if (val == -1) {
                     displayGrid[y][x] = "##";
@@ -70,8 +70,8 @@ public class MazeUtils {
             displayGrid[curr.getY()][curr.getX()] = symbol;
         }
 
-        for (int y = 0; y < dim.getH(); y++) {
-            for (int x = 0; x < dim.getW(); x++) {
+        for (int y = 0; y < dim.h(); y++) {
+            for (int x = 0; x < dim.w(); x++) {
                 // Use pad() to ensure alignment even with ANSI colors
                 System.out.print(pad(displayGrid[y][x]));
             }
@@ -81,10 +81,10 @@ public class MazeUtils {
     
 
     public static void printBlankMaze(List<List<Integer>> maze, MazeDimension dim) {
-        String[][] displayGrid = new String[dim.getH()][dim.getW()];
+        String[][] displayGrid = new String[dim.h()][dim.w()];
 
-        for (int y = 0; y < dim.getH(); y++) {
-            for (int x = 0; x < dim.getW(); x++) {
+        for (int y = 0; y < dim.h(); y++) {
+            for (int x = 0; x < dim.w(); x++) {
                 int val = maze.get(y).get(x);
                 if (val == -1) {
                     displayGrid[y][x] = "##";
@@ -98,8 +98,8 @@ public class MazeUtils {
                 }
             }
         }
-        for (int y = 0; y < dim.getH(); y++) {
-            for (int x = 0; x < dim.getW(); x++) {
+        for (int y = 0; y < dim.h(); y++) {
+            for (int x = 0; x < dim.w(); x++) {
                 // Use pad() to ensure alignment even with ANSI colors
                 System.out.print(pad(displayGrid[y][x]));
             }

@@ -20,8 +20,8 @@ public class AStar implements AlgorithmStrategy {
 
         Coordinate start = null;
         Coordinate goal = null;
-        int H = dimension.getH();
-        int W = dimension.getW();
+        int H = dimension.h();
+        int W = dimension.w();
 
         for (int y = 0; y < H; y++) {
             for (int x = 0; x < W; x++) {
@@ -60,8 +60,8 @@ public class AStar implements AlgorithmStrategy {
             }
 
             if (this.elapsed >= AlgorithmConstant.TIME_LIMIT_MS) {
-                System.out.println(String.format("Terminated! Time limit of %d reached. (%d elapsed)",
-                        AlgorithmConstant.TIME_LIMIT_MS, this.elapsed));
+                System.out.printf("Terminated! Time limit of %d reached. (%d elapsed)%n",
+                        AlgorithmConstant.TIME_LIMIT_MS, this.elapsed);
                 this.elapsed = System.currentTimeMillis() - startTime;
                 return;
             }

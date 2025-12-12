@@ -7,7 +7,7 @@ import me.guntxjakka.MazeSolve.Algorithms.AlgorithmResult;
 public class MazeMiscResults {
     public static void print(AlgorithmResult res){
         System.out.println("Results: ");
-        System.out.println(String.format("Total Cost: %d, Time used: %dms", res.getCost(), res.getElapsedTime()));
+        System.out.printf("Total Cost: %d, Time used: %dms%n", res.getCost(), res.getElapsedTime());
     }
 
     public static void printTable(Map<String, AlgorithmResult> resmap) {
