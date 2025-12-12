@@ -7,7 +7,7 @@ public class GAStandardDeviation {
     private static final int MAX_SIZE = 1000;
     private Queue<Double> fitQ = new ArrayDeque<>();
 
-    public void addFiness(Double fitness) {
+    public void addFitness(Double fitness) {
         this.fitQ.add(fitness);
 
         if (this.fitQ.size() > MAX_SIZE) {

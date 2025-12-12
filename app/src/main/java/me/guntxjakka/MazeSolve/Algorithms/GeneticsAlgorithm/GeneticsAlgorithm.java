@@ -250,7 +250,7 @@ public class GeneticsAlgorithm implements AlgorithmStrategy {
                 stagnationCounter++;
             }
 
-            csd.addFiness(champCandidate.getFitness());
+            csd.addFitness(champCandidate.getFitness());
 
             if (champOfTheChamp == null || champCandidate.compareTo(champOfTheChamp) > 0) {
                 champOfTheChamp = new Individual(null);
